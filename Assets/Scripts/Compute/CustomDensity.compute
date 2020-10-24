@@ -1,0 +1,20 @@
+﻿#pragma kernel Density
+#include "/Includes/Density.compute"
+#include "/Includes/Noise.compute"
+
+[numthreads(numThreads,numThreads,numThreads)]
+void Density (int3 id : SV_DispatchThreadID)
+{
+    if (id.x >= numPointsPerAxis || id.y >= numPointsPerAxis || id.z >= numPointsPerAxis) {
+        return;
+    }
+    
+    float3 pos = centre + id * spacing - boundsSize / 2;
+
+    float density = -pos.y;
+
+    density += snoise(pos);
+
+    int index = indexFromCoord(id.x, id.y, id.z);
+    points[index] = float4(pos, density);
+}
